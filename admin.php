@@ -153,3 +153,95 @@ function displayform() {
 	echo"<input type=\"submit\" name=\"announcement\" value=\"Make announcements\"/>";
 	echo"</form>";
 }
+
+function email() {	
+	echo "<fieldset class=\"admin\"><legend>Create Group Mail</legend>";
+	echo "<form name=\"myform\" method=\"post\" action=\"admin.php\" onsubmit=\"return validate();\">";
+	echo "<table>
+		<tr>
+		<td><label> Subject </label></td>
+		<td><input type=\"text\" name=\"subject\" id=\"subject\"/></td>
+		<td><span class=\"ereport\" id=\"subjecterror\"></span></td>
+		</tr>
+		
+		<tr>
+		<td><label> Message </label></td>
+		<td><textarea name=\"message\" cols=\"50\" rows=\"10\" id=\"message\"> </textarea></td>
+		<td><span class=\"ereport\" id=\"messageerror\"></span></td>
+		</tr>
+		
+		<tr>
+		<td><label> Admin Password </label></td>
+		<td><input type=\"password\" name=\"password\" id=\"password\"/></td>
+		<td><span class=\"ereport\" id=\"passworderror\"></span></td>
+		</tr>
+		
+		<tr>
+		<td><label> Membership Type</label></td>
+		<td><input type=\"checkbox\" name=\"types\" id=\"radio1\" value=\"admin\"/> Admin<br>
+ 				<input type=\"checkbox\" name=\"types\" id=\"radio2\" value=\"board\"/> E-Board<br>
+ 				<input type=\"checkbox\" name=\"types\" id=\"radio4\" value=\"member\"/> Member<br></td>
+ 				
+ 		<td>		<span class=\"ereport\" id=\"typeerror\"></span></td>
+ 		</tr>
+ 		<tr>
+ 		<td><input type=\"submit\" name=\"send\" id=\"send\" value=\"Send\"/></td>
+ 		<td> </td>
+ 		<td> </td>
+ 		</tr>
+ 		</table>
+ 		</form></fieldset>";
+
+}
+
+function announcement() {
+
+
+
+
+
+
+}
+
+function displayLogin() {
+	echo "<form method=\"post\"/>";
+	echo "<input type=\"password\" name=\"password\" />";
+	echo "<input type=\"submit\" name=\"adminlogin\" value=\"Log In\"/>";
+	echo "</form>";
+}
+
+function handleform() {
+	$subject = $_POST['subject'];
+	$password = $_POST['password'];
+	$message = $_POST['message'];
+	$types = $_POST['types'];
+	$adminpw = "1785ed6ccf537856a2e5d0935a1ffb2dde2d3ab5";
+	if(sha1($password) == $adminpw) {
+		$dbc = connectToDB();
+		$query = "SELECT * FROM KISA WHERE MembershipType=\"$types\"";
+		$result = performQuery($dbc,$query);
+		while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+			$email = $row['Email'];
+			sendemail($subject,$email,$message);
+		}
+		disconnectFromDB($dbc,$result);
+		echo "Message was sent successfully.<br>";
+		echo "<a href=\"http://cscilab.bc.edu/~kimbvn/hw11/admin.php\">Return to the admin page</a><br>";
+	}
+	else {
+		echo "Admin Password is incorrect.<br>";
+	}
+}
+
+function sendemail($subject,$email,$message) {
+	$to = $email;
+	$subject = $subject;
+	$letter = $message;
+	$headers = 'From: Ellen Club';
+	mail($to,$subject,$letter,$headers);
+}
+
+?>
+		
+	
+		
