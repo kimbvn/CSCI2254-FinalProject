@@ -187,8 +187,8 @@ include('dbconn.php');
 	if(isset($_GET['email'])) {
 		email();
 	}
-	if(isset($_GET['announcements'])) {
-		announcement();
+	if(isset($_GET['announcement'])) {
+		event();
 	}
 ?>
 
