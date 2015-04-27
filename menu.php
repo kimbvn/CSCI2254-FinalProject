@@ -60,4 +60,37 @@ function display_soccer() {
 
 function display_events() {
 
+
+		$omitlist = isset($_COOKIE['omitCookie']) ? $_COOKIE['omitCookie'] : 0;
+		echo"$omitlist";
+
+		$dbc= connectToDB("kimbvn");
+		$query = "SELECT * FROM KISAEVENTS where title NOT IN ( '$omitlist' )";
+		$result = performQuery($dbc, $query);
+		echo "<fieldset><legend><h1> KISA EVENTS PAGE </h1></legend>";
+		echo "<img src = \"kisa.jpg\" alt=\"picture\">";
+		echo "<br><br><br>";
+		echo "<h2> Schedule of Events: </h2>";
+		echo"<form method = 'get' action = 'cookieoperation.php'>
+		<input type = 'submit' name = 'clear' value = 'Clear Omit'/>
+		</form> <br><br>";
+		
+		echo "<fieldset>";
+		echo "<table>";
+		$color = "lightblue";
+	
+		
+		while (@extract(mysqli_fetch_array($result, MYSQLI_ASSOC))) {
+			$color = $color == "lightgreen" ? "lightyellow": "lightgreen";
+			echo "<tr style='background-color: $color'><td>$title</td>
+			<td> $date $time <br><br> </td> <td> $address <br><br><br> </td> <td> $description </td> 
+			<td> <form method = 'get' action = 'cookieoperation.php'> 
+			<input type = 'hidden' name = 'cookie' value = '$omitlist'/>
+			<input type = 'hidden' name = 'title3' value = '$title'/>
+			<input type = 'submit' name = 'hide' value = 'Hide Event'/> </form> </td> </tr>\n";
+		}
+		echo "</table>";
+		echo"</fieldset>";
+
+
 }
