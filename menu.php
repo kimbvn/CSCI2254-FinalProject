@@ -1,3 +1,8 @@
+<?php
+include('dbconn.php');
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,7 +30,7 @@ if(isset($_GET['soccer']))
 	display_soccer();
 if(isset($_GET['events']))
 	display_events();
-if(isset($_GET['announcements']))
+if(isset($_GET['announcement']))
 	display_announcements();
 
 
