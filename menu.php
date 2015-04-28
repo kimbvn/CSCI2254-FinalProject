@@ -65,12 +65,10 @@ function display_soccer() {
 
 function display_events() {
 
-
-		$omitlist = isset($_COOKIE['omitCookie']) ? $_COOKIE['omitCookie'] : 0;
+		$omitlist = isset($_COOKIE['omitCookie']) ? $_COOKIE['omitCookie'] : "0";
 		echo"$omitlist";
-
 		$dbc= connectToDB("kimbvn");
-		$query = "SELECT * FROM KISAEVENTS where title NOT IN ( '$omitlist' )";
+		$query = "SELECT * FROM KISAEVENTS where event_id NOT IN ($omitlist)";
 		$result = performQuery($dbc, $query);
 		echo "<fieldset><legend><h1> KISA EVENTS PAGE </h1></legend>";
 		echo "<img src = \"kisa.jpg\" alt=\"picture\">";
@@ -91,11 +89,9 @@ function display_events() {
 			<td> $date $time <br><br> </td> <td> $address <br><br><br> </td> <td> $description </td> 
 			<td> <form method = 'get' action = 'cookieoperation.php'> 
 			<input type = 'hidden' name = 'cookie' value = '$omitlist'/>
-			<input type = 'hidden' name = 'title3' value = '$title'/>
+			<input type = 'hidden' name = 'id' value = '$event_id'/>
 			<input type = 'submit' name = 'hide' value = 'Hide Event'/> </form> </td> </tr>\n";
 		}
 		echo "</table>";
 		echo"</fieldset>";
-
-
 }
