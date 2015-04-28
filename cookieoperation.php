@@ -2,7 +2,7 @@
 	
 	
 	if (isset($_GET['hide'])){
-		$cookie = $_GET['cookie'].", ". $_GET['title3'];
+		$cookie = $_GET['cookie'].", ". $_GET['id'];
 		setcookie('omitCookie', $cookie);
  		header('Location: menu.php?events=Events?status=updatecookie');
  		}
