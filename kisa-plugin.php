@@ -66,4 +66,94 @@ function register_cpt_album() {
  	}
  	add_shortcode('wpb_childpages','wpb_list_child_pages');
 
+function displaysoccer() {
+	echo "<div style=\"float:bottom; text-align:center\">";
+	echo "<form name=\"form\" method=\"post\"  onsubmit=\"return validate();\">";
+	echo "<table>
+			<tr>
+				<td> Number of Players From BC: </td>
+				<td><input type=\"text\" name=\"players\" id=\"name\"/></td>
+				<td><span class=\"ereport\" id=\"playerserror\"></span></td>
+			</tr>
+			<tr>
+				<td> Name of the School : </td>
+				<td><input type=\"text\" name=\"school\" id=\"category\"/></td>
+				<td><span class=\"ereport\" id=\"schoolerror\"></span></td>
+			</tr>
+			<tr>
+				<td> Number of Players From Other School: </td>
+				<td><input type=\"text\" name=\"number2\" id=\"name\"/></td>
+				<td><span class=\"ereport\" id=\"number2error\"></span></td>
+			</tr>
+			<tr>
+				<td> Phone Number of the Captain: </td>
+				<td><input type=\"text\" name=\"phone\" id=\"phone\"/></td>
+				<td><span class=\"ereport\" id=\"phoneerror\"></span></td>
+			</tr>
+			<tr>
+				<td> Date of the Game: </td>
+				<td><input type=\"date\" name=\"date\" id=\"date\"/></td>
+				<td><span class =\"ereport\" id=\"dateerror\"></span></td>
+			</tr>
+			<tr>
+				<td> Address: </td>
+				<td><input type=\"text\" name=\"address\" id=\"address\"/></td>
+				<td><span class=\"ereport\" id=\"addresserror\"></span></td>
+			</tr>
+			<tr>
+				<td> Comment: </td>
+				<td><textarea name=\"comment\" cols=\"50\" rows=\"10\" id=\"comment\"> </textarea></td>
+				<td> <span class=\"ereport\" id=\"commenterror\"></span></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type=\"submit\" name=\"submit\" value=\"Add\" /></td>
+				<td></td>
+			</tr>
+		</table></div>";		
+	echo "</form>";
+	}
+	add_shortcode('soccerform','displaysoccer');
 
+
+
+
+
+
+function handlesoccer() {
+
+	
+	$name = $_POST['players'];
+	$star = $_POST['school'];
+	$price = $_POST['number2'];
+	$address = $_POST['address'];
+	$phone = $_POST['phone'];
+	$comment = mysql_real_escape_string($_POST['comment']);
+	
+
+   	$geocodeURL = "https://maps.googleapis.com/maps/api/geocode/xml?";
+   	$urladdress = "address=" . urlencode($address);
+   	$key = "AIzaSyC0l5lpV9qWcYUuxB2jbSw3gMuyumBfs5g";
+	$geocoderequest = "$geocodeURL$urladdress" . "&" . $key;
+		
+   	$xml= new SimpleXMLElement( file_get_contents( $geocoderequest ) );
+   		
+   	if($xml->status != 'OK') {
+   		header("Location: index.php?status=$xml->error_message");
+   		$status = $xml->error_message;
+   		die("bad result status $status");
+   	}
+
+    $latitude  = $xml->result->geometry->location->lat;
+    $longitude = $xml->result->geometry->location->lng;
+        
+    if(insertform($name,$star,$price,$category,$address,$phone,$url,$userid,$comment,$latitude,$longitude)) {
+    	header('Location: index.php?status=goodinsert');
+    } else {
+    	header('LocationL index.php?status=badaddr');
+    }
+
+}
+add_shortcode('soccermap','handlesoccer');
+
+?>
