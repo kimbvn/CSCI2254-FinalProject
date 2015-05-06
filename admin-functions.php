@@ -705,7 +705,7 @@ if ( ! class_exists( 'TribeEvents' ) ) {
 				if ( version_compare( $plugin['required_version'], self::VERSION, '>' ) ) {
 					$tec_out_of_date = true;
 					break;
-				}
+				} 
 
 				// check if addons are at an older minor version
 				$addon_minor_version = (float) $plugin['current_version'];
