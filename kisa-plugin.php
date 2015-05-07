@@ -201,24 +201,13 @@ function handlesoccer() {
 	$date = $_POST['date'];
 	$phone = $_POST['phone'];
 	$comment = mysql_real_escape_string($_POST['comment']);
-	
-	echo "\$players, \$school,\$players2\\";
-   	$geocodeURL = "https://maps.googleapis.com/maps/api/geocode/xml?";
-   	$urladdress = "address=" . urlencode($address);
-   	$key = "AIzaSyC0l5lpV9qWcYUuxB2jbSw3gMuyumBfs5g";
-	$geocoderequest = "$geocodeURL$urladdress" . "&" . $key;
-		
-   	$xml= new SimpleXMLElement( file_get_contents( $geocoderequest ) );
-   		
-   	if($xml->status != 'OK') {
-   		$status = $xml->error_message;
-   		die("bad result status $status");
-   	}
-
-    $latitude  = $xml->result->geometry->location->lat;
-    $longitude = $xml->result->geometry->location->lng;
+    
+    
+    $location = handleForm($address);
+	$latitude = $location["latitude"];
+	$longitude = $location["longitude"];
         
-    if(insertform($players,$school,$players2,$address,$date,$phone,$comment)) {
+    if(insertform($players,$school,$players2,$address,$date,$phone, $latitude, $longitude, $comment)) {
 		echo "Insertion done";
     } else {
     	echo "Insertion failed";
@@ -226,7 +215,51 @@ function handlesoccer() {
     
     
 }
-//add_shortcode('soccermap','handlesoccer');
+
+	function handleForm($address){
+		//echo "<fieldset><legend>Info about $address</legend>";
+
+   		$geocodeURL = "https://maps.googleapis.com/maps/api/geocode/xml?";
+   		$address = "address=" . urlencode($address);
+   		// https://console.developers.google.com
+   		$key = "AIzaSyASZREptljJNANdLCrRZ-DCZq0cKhcpwGU";
+   		$geocoderequest = "$geocodeURL$address" . "&" . $key;
+   		
+   		//die( "The url is >" . $geocoderequest . "<" );
+   		
+   		$xml= new SimpleXMLElement( file_get_contents( $geocoderequest ) );
+   		
+   		if($xml->status != 'OK') {
+   			$status = $xml->error_message;
+   			die("bad result status $status");
+   		}
+
+		$placeRequestURL = "https://maps.googleapis.com/maps/api/place/details/xml?";
+   		//$key = "key=AIzaSyAsAWbQ0_nFCSoOwOwVP9JYroJ12JI0xOE";
+   		$placeID = "placeid=" . $xml->place_id;
+   		$placedetailsrequest = "$placeRequestURL$placeID" . "&" . $key;
+   		
+   		//echo $placedetailsrequest;
+   		
+   		$xml2 = new SimpleXMLElement( file_get_contents( $geocoderequest ) );
+   		$loc = getLocation($xml);
+   		return ($loc);
+
+
+	}
+
+    function getLocation($xml)
+    {
+        //echo "<pre>"; print_r( $xml);  	echo "</pre>";
+        $latitude  = $xml->result->geometry->location->lat;
+        $longitude = $xml->result->geometry->location->lng;
+        
+        $location = array("latitude" => $latitude, "longitude" => $longitude);
+        
+        return ($location);
+    }
+
+
 
 function connectToDB() {
 	$dbc = @mysqli_connect("localhost","kimbvn","agTKw48F","kimbvn") or
@@ -244,10 +277,10 @@ function performQuery($dbc,$query) {
 	return ($result);
 }
 
-function insertform($players,$school,$players2,$address,$date,$phone,$comment) {
+function insertform($players,$school,$players2,$address,$date,$phone,$latitude, $longitude, $comment) {
 	$dbc = connectToDB();
 	$query = "INSERT INTO KISASoccer VALUES(\"$players\",\"$school\",\"$players2\",
-				\"$address\",\"$date\",\"$phone\",\"$comment\")";
+				\"$address\",\"$date\",\"$phone\", \"$latitude\", \"$longitude\", \"$comment\")";
 	$result = performQuery($dbc,$query);
 	if($result == 1) {
 		return true;
@@ -263,6 +296,21 @@ function displaysoccerschedule() {
 	$selection = performQuery($dbc,$query);
 	$result = performQuery($dbc,$query);
 	
+	
+	$weatherlocs = array (
+		"BU" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
+		"Babson" => "http://w1.weather.gov/xml/current_obs/BHBM3.xml",
+		"Harvard" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
+		"MIT" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
+		"Brown" => "http://w1.weather.gov/xml/current_obs/KPVD.xml",
+		"NYU" => "http://w1.weather.gov/xml/current_obs/KNYC.xml",
+		"CORNELL" => "http://w1.weather.gov/xml/current_obs/KITH.xml",
+		"UPENN" => "http://w1.weather.gov/xml/current_obs/KPHL.xml"
+		 );
+	
+	
+	
+	
 	$row = mysqli_fetch_array($result,MYSQLI_ASSOC);
 	echo "<table id=\"result\" style=\"background-color: #F5F6CE\">
 			<tr>
@@ -273,8 +321,11 @@ function displaysoccerschedule() {
 				<th>Address </th>
 				<th>Phone</th>
 				<th>Comment</th>
+				<th> Weather </th>
+				<th> Temperature </th>
 				
 			</tr>";
+			
 	while($row = mysqli_fetch_array($selection,MYSQLI_ASSOC)) {
 		$date = $row['Date'];
 		$players = $row['Players'];
@@ -283,6 +334,8 @@ function displaysoccerschedule() {
 		$address = $row['Address'];
 		$phone = $row['Phone'];
 		$comment = $comment['Comment'];
+		$weather= getWeather($weatherlocs, $school);
+		$temp = getTemperature($weatherlocs, $school);
 
 		echo "<tr>
 				<td>$date </td>
@@ -292,6 +345,8 @@ function displaysoccerschedule() {
 				<td>$address</td>
 				<td>$phone</td>
 				<td>$comment</td>
+				<td> $weather </td>
+				<td> $temp </td>
 			</tr>";
 	} 
 	echo "</table>";
@@ -299,10 +354,12 @@ function displaysoccerschedule() {
 
 add_shortcode('soccerschedule','displaysoccerschedule');
 
-function getweather($weatherlocs, $newsfeeds) {
+
+
+function getWeather($weatherlocs, $school) {
 
 		$city = $_GET['location'];
-		$file = $weatherlocs[$city];
+		$file = $weatherlocs[$school];
 			
 		if ( ! ($xmlstr = file_get_contents($file)) ) {
 			die("Unable to read XML file $file" );
@@ -313,17 +370,115 @@ function getweather($weatherlocs, $newsfeeds) {
 		$xml = new SimpleXMLElement( $xmlstr );	
 		
 		
-		$location = $xml -> location;
-		$time = $xml -> observation_time;
-		$weather = $xml -> weather;
-		$temperature = $xml -> temperature_string;
-		$wind = $xml -> wind_string;
+		$weather = $xml -> weather;		
 		
-		echo "<h1>$location</h1>";
-		echo  $time . "<br>";
-		echo $weather . "<br>";
-		echo $temperature . "<br>";
-		echo $wind . "<br>";
+		return $weather ;
+		
 	
 		}
+		
+function getTemperature($weatherlocs, $school) {
+
+		$city = $_GET['location'];
+		$file = $weatherlocs[$school];
+			
+		if ( ! ($xmlstr = file_get_contents($file)) ) {
+			die("Unable to read XML file $file" );
+			}
+		else { $xmlstr = file_get_contents($file); }
+		
+		
+		$xml = new SimpleXMLElement( $xmlstr );	
+		
+		$temperature = $xml -> temperature_string;
+
+		
+		
+		return $temperature;
+		
+
+	
+		}
+		
+		function joinSoccerTeam() {
+	echo "<form name=\"form\" method=\"post\"  onsubmit=\"return validate2();\">";
+	echo "<table>
+			<tr>
+				<td> Name: </td>
+				<td><input type=\"text\" name=\"name\" id=\"name\"/></td>
+				<td><span class=\"ereport\" id=\"nameerror\"></span></td>
+			</tr>
+			<tr>
+				<td> Position </td>
+				<td><select name=\"position\" id=\"position\">
+					<option></option>
+					<option value=\"captain\"> Captain </option>
+					<option value=\"goal\"> Goalkeeper </option>
+					<option value=\"centerback\"> Center-Back </option>
+					<option value=\"fullback\"> Full-Back </option>
+					<option value=\"wingback\"> Wing-back </option>
+					<option value=\"midfielder\"> Midfielder </option>
+					<option value=\"striker\"> Striker </option>
+					<option value=\"forward\"> Forward </option>
+					</select> </td>
+				<td><span class=\"ereport\" id=\"positionerror\"></span></td>
+			</tr>
+			
+			<tr>
+				<td> Phone: </td>
+				<td><input type=\"text\" name=\"phone\" id=\"phone\"/></td>
+				<td><span class=\"ereport\" id=\"phoneerror\"></span></td>
+			</tr>
+			<tr>
+				<td> Class: </td>
+				<td><input type=\"text\" name=\"class\" id=\"class\"/></td>
+				<td><span class=\"ereport\" id=\"classerror\"></span></td>
+			</tr>
+			<tr>
+				<td> Comment: </td>
+				<td><textarea name=\"comment\" cols=\"50\" rows=\"10\" id=\"comment\"> </textarea></td>
+				<td> <span class=\"ereport\" id=\"commenterror\"></span></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type=\"submit\" name=\"submit2\" value=\"Add\" /></td>
+				<td></td>
+			</tr>
+		</table>";		
+	echo "</form>";
+}
+add_shortcode('joinsoccer','joinSoccerTeam');
+if(isset($_POST['submit2'])) {
+	handlejoin();
+}
+
+function handlejoin() {
+	
+	$name = $_POST['name'];
+	$position = $_POST['position'];
+	$phone = $_POST['phone'];
+	$class = $_POST['class'];
+	$comment = mysql_real_escape_string($_POST['comment']);
+	
+	 if(joinsoccer($name,$position,$phone,$class,$comment)) {
+		echo "Insertion done";
+    } else {
+    	echo "Insertion failed";
+    }
+    
+}	
+
+function joinsoccer($name,$position,$phone,$class,$comment) {
+	$dbc = connectToDB();
+	$query = "INSERT INTO JOINSOCCER VALUES(\"$name\",\"$position\",\"$phone\",
+				\"$class\", \"$comment\")";
+	$result = performQuery($dbc,$query);
+	if($result == 1) {
+		return true;
+		
+	} else {
+		return false;
+	}
+}
+
 ?>
