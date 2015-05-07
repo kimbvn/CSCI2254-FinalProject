@@ -216,7 +216,7 @@ function handlesoccer() {
     
 }
 
-	function handleForm($address){
+		function handleForm($address){
 		//echo "<fieldset><legend>Info about $address</legend>";
 
    		$geocodeURL = "https://maps.googleapis.com/maps/api/geocode/xml?";
@@ -297,7 +297,7 @@ function displaysoccerschedule() {
 	$result = performQuery($dbc,$query);
 	
 	
-	$weatherlocs = array (
+$weatherlocs = array (
 		"BU" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
 		"Babson" => "http://w1.weather.gov/xml/current_obs/BHBM3.xml",
 		"Harvard" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
@@ -309,6 +309,34 @@ function displaysoccerschedule() {
 		 );
 	
 	
+	$weatherimages = array (
+		"A Few Clouds" => "",
+		"A Few Clouds and Breezy" =>  "",
+		"A Few Clouds and Windy" =>  "",
+		"Partly Cloudy" =>  "",
+		"Partly Cloudy and Breezy" => "",
+		"Partly Cloudy and Windy"  => "",
+		"Mostly Cloudy" => "",
+		"Mostly Cloudy and Breezy"  => "",
+		"Mostly Cloudy and Windy"  => "",
+		"Fair" =>	 "",
+		"Fair and Windy"  => "",
+		"Fair and Breezy"  => "",
+		"Light Rain" => "",
+		"Light Rain and Windy"  =>  "",
+		"Light Rain and Breezy" => "",
+		"Overcast" => "",
+		"Overcast and Windy" => "",
+		"Overcast and Breezy" => "",
+		"Fog/Mist" =>  "",
+		"Fog/Mist and Breezy"  => "",
+		"Fog/Mist and Windy"  => "",
+		"Light Drizzle" => "",
+		"Light Drizzle and Windy"  => "",
+		"Light Drizzle and Breezy"  => ""
+		
+		);
+
 	
 	
 	$row = mysqli_fetch_array($result,MYSQLI_ASSOC);
@@ -399,7 +427,6 @@ function getTemperature($weatherlocs, $school) {
 
 	
 		}
-		
 		function joinSoccerTeam() {
 	echo "<form name=\"form\" method=\"post\"  onsubmit=\"return validate2();\">";
 	echo "<table>
