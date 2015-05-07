@@ -1,4 +1,5 @@
 <?php
+
 /*
 Plugin Name: Site Plugin for BC KISA
 
@@ -116,23 +117,6 @@ add_filter( 'attachment_fields_to_save', 'be_attachment_field_credit_save', 10, 
  	}
  	add_shortcode('wpb_childpages','display_child');
  	add_filter('widget_text','do_shortcode');
-/*
-function getweather(){
-	$weatherlocs = "http://w1.weather.gov/xml/current_obs/KBOS.xml"
-	$xml = new SimpleXMLElement(file_get_contents("boston"));
-	$location = $xml->location;
-	$temp = $xml->temp_f;
-	$visibility = $xml->visibility_mi;
-	$time = $xml->observation_time;
-	echo "<h2>The weather of $location</h2>";
-	echo "Temperature is $temp'F and the visibility is $visibility<br>";
-	echo "$time";
-
-}
-
-
-add_shortcode('weather','getweather');
-*/
 
 
 function displaysoccer() {
@@ -194,7 +178,7 @@ if(isset($_POST['submit'])) {
 function handlesoccer() {
 
 	
-	$plyers = $_POST['players'];
+	$players = $_POST['players'];
 	$school = $_POST['school'];
 	$players2 = $_POST['number2'];
 	$address = $_POST['address'];
@@ -216,7 +200,7 @@ function handlesoccer() {
     
 }
 
-		function handleForm($address){
+	function handleForm($address){
 		//echo "<fieldset><legend>Info about $address</legend>";
 
    		$geocodeURL = "https://maps.googleapis.com/maps/api/geocode/xml?";
@@ -297,15 +281,15 @@ function displaysoccerschedule() {
 	$result = performQuery($dbc,$query);
 	
 	
-$weatherlocs = array (
+	$weatherlocs = array (
 		"BU" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
 		"Babson" => "http://w1.weather.gov/xml/current_obs/BHBM3.xml",
 		"Harvard" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
 		"MIT" => "http://w1.weather.gov/xml/current_obs/KBOS.xml",
 		"Brown" => "http://w1.weather.gov/xml/current_obs/KPVD.xml",
 		"NYU" => "http://w1.weather.gov/xml/current_obs/KNYC.xml",
-		"CORNELL" => "http://w1.weather.gov/xml/current_obs/KITH.xml",
-		"UPENN" => "http://w1.weather.gov/xml/current_obs/KPHL.xml"
+		"Cornell" => "http://w1.weather.gov/xml/current_obs/KITH.xml",
+		"UPenn" => "http://w1.weather.gov/xml/current_obs/KPHL.xml"
 		 );
 	
 	
@@ -363,7 +347,10 @@ $weatherlocs = array (
 		$phone = $row['Phone'];
 		$comment = $comment['Comment'];
 		$weather= getWeather($weatherlocs, $school);
+		$weather1 = "$weather";
 		$temp = getTemperature($weatherlocs, $school);
+		$image = $weatherimages[$weather1];
+	
 
 		echo "<tr>
 				<td>$date </td>
@@ -373,7 +360,7 @@ $weatherlocs = array (
 				<td>$address</td>
 				<td>$phone</td>
 				<td>$comment</td>
-				<td> $weather </td>
+				<td> $weather</td>
 				<td> $temp </td>
 			</tr>";
 	} 
@@ -427,17 +414,18 @@ function getTemperature($weatherlocs, $school) {
 
 	
 		}
-		function joinSoccerTeam() {
+		
+function joinSoccerTeam() {
 	echo "<form name=\"form\" method=\"post\"  onsubmit=\"return validate2();\">";
 	echo "<table>
 			<tr>
 				<td> Name: </td>
-				<td><input type=\"text\" name=\"name\" id=\"name\"/></td>
+				<td><input type=\"text\" name=\"name\" id=\"name\" required=\"required\" /></td>
 				<td><span class=\"ereport\" id=\"nameerror\"></span></td>
 			</tr>
 			<tr>
 				<td> Position </td>
-				<td><select name=\"position\" id=\"position\">
+				<td><select name=\"position\" id=\"position\" required=\"required\">
 					<option></option>
 					<option value=\"captain\"> Captain </option>
 					<option value=\"goal\"> Goalkeeper </option>
@@ -453,12 +441,12 @@ function getTemperature($weatherlocs, $school) {
 			
 			<tr>
 				<td> Phone: </td>
-				<td><input type=\"text\" name=\"phone\" id=\"phone\"/></td>
+				<td><input type=\"text\" name=\"phone\" id=\"phone\" required=\"required\"/></td>
 				<td><span class=\"ereport\" id=\"phoneerror\"></span></td>
 			</tr>
 			<tr>
 				<td> Class: </td>
-				<td><input type=\"text\" name=\"class\" id=\"class\"/></td>
+				<td><input type=\"text\" name=\"class\" id=\"class\" required=\"required\"/></td>
 				<td><span class=\"ereport\" id=\"classerror\"></span></td>
 			</tr>
 			<tr>
@@ -475,6 +463,7 @@ function getTemperature($weatherlocs, $school) {
 	echo "</form>";
 }
 add_shortcode('joinsoccer','joinSoccerTeam');
+
 if(isset($_POST['submit2'])) {
 	handlejoin();
 }
@@ -487,11 +476,8 @@ function handlejoin() {
 	$class = $_POST['class'];
 	$comment = mysql_real_escape_string($_POST['comment']);
 	
-	 if(joinsoccer($name,$position,$phone,$class,$comment)) {
-		echo "Insertion done";
-    } else {
-    	echo "Insertion failed";
-    }
+	 joinsoccer($name,$position,$phone,$class,$comment);
+	
     
 }	
 
@@ -543,5 +529,5 @@ function soccerteam() {
 
 }
 add_shortcode('showteam','soccerteam');
-?>
+
 ?>
