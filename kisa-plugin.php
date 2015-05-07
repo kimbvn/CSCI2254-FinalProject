@@ -257,4 +257,46 @@ function insertform($players,$school,$players2,$address,$date,$phone,$comment) {
 	}
 }
 
+function displaysoccerschedule() {
+	$dbc = connectToDB();
+	$query = "SELECT * FROM KISASoccer";
+	$selection = performQuery($dbc,$query);
+	$result = performQuery($dbc,$query);
+	
+	$row = mysqli_fetch_array($result,MYSQLI_ASSOC);
+	echo "<table id=\"result\" style=\"background-color: #F5F6CE\">
+			<tr>
+				<th>Date</th>
+				<th>BC Players</th>
+				<th>Opposing Team</th>
+				<th>Players</th>
+				<th>Address </th>
+				<th>Phone</th>
+				<th>Comment</th>
+				
+			</tr>";
+	while($row = mysqli_fetch_array($selection,MYSQLI_ASSOC)) {
+		$date = $row['Date'];
+		$players = $row['Players'];
+		$school = $row['School'];
+		$players2 = $row['Players2'];
+		$address = $row['Address'];
+		$phone = $row['Phone'];
+		$comment = $comment['Comment'];
+
+		echo "<tr>
+				<td>$date </td>
+				<td>$players</td>
+				<td>$school</td>
+				<td>$players2</td>
+				<td>$address</td>
+				<td>$phone</td>
+				<td>$comment</td>
+			</tr>";
+	} 
+	echo "</table>";
+}
+
+add_shortcode('soccerschedule','displaysoccerschedule');
+
 ?>
