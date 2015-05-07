@@ -481,4 +481,40 @@ function joinsoccer($name,$position,$phone,$class,$comment) {
 	}
 }
 
+function soccerteam() {
+	$dbc = connectToDB();
+	$query = "SELECT * FROM JOINSOCCER";
+	$selection = performQuery($dbc,$query);
+	$result = performQuery($dbc,$query);
+	
+	$row = mysqli_fetch_array($result,MYSQLI_ASSOC);
+	echo "<table>
+			<tr>
+				<th>Name</th>
+				<th>Position</th>
+				<th>Phone</th>
+				<th>Class</th>
+				<th>Comment</th>
+			
+			</tr>";
+	while($row = mysqli_fetch_array($selection,MYSQLI_ASSOC)) {
+		$name = $row['Name'];
+		$position = $row['Position'];
+		$phone = $row['Phone'];
+		$class = $row['Class'];
+		$comment = $row['Comment'];
+
+		echo "<tr>
+				<td>$name</td>
+				<td>$position</td>
+				<td>$phone</td>
+				<td>$class</td>
+				<td>$comment</td>
+			</tr>";
+	} 
+	echo "</table>";
+
+}
+add_shortcode('showteam','soccerteam');
+?>
 ?>
