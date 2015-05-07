@@ -299,4 +299,31 @@ function displaysoccerschedule() {
 
 add_shortcode('soccerschedule','displaysoccerschedule');
 
+function getweather($weatherlocs, $newsfeeds) {
+
+		$city = $_GET['location'];
+		$file = $weatherlocs[$city];
+			
+		if ( ! ($xmlstr = file_get_contents($file)) ) {
+			die("Unable to read XML file $file" );
+			}
+		else { $xmlstr = file_get_contents($file); }
+		
+		
+		$xml = new SimpleXMLElement( $xmlstr );	
+		
+		
+		$location = $xml -> location;
+		$time = $xml -> observation_time;
+		$weather = $xml -> weather;
+		$temperature = $xml -> temperature_string;
+		$wind = $xml -> wind_string;
+		
+		echo "<h1>$location</h1>";
+		echo  $time . "<br>";
+		echo $weather . "<br>";
+		echo $temperature . "<br>";
+		echo $wind . "<br>";
+	
+		}
 ?>
